@@ -1,5 +1,7 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 // reactstrap components
 import {
@@ -24,6 +26,23 @@ import DemoFooter from "components/Footers/DemoFooter.js";
 
 function ProfilePage() {
   const [activeTab, setActiveTab] = React.useState("1");
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // Fetch user data from backend (replace with your API call)
+    const fetchUserData = async () => {
+      try {
+        const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
+        const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+        setUserData(response.data);
+        console.log(userData);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const toggle = (tab) => {
     if (activeTab !== tab) {
@@ -54,9 +73,9 @@ function ProfilePage() {
             </div>
             <div className="name">
               <h4 className="title">
-                Emailaddress <br />
+              {userData ? userData.email : 'Loading...'} <br />
               </h4>
-              <h6 className="description">User Name</h6>
+              <h6 className="description">{userData?.name || 'Loading...'}</h6>
             </div>
           </div>
           <div>

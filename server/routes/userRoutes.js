@@ -7,6 +7,7 @@ import User from '../models/User.js'; // Assuming User is an ES module
 async function signup(req, res) {
   try {
     const { email, password, confirmPassword } = req.body;
+    console.log(req.body);
 
     // Validate passwords
     if (password !== confirmPassword) {
@@ -33,7 +34,74 @@ async function signup(req, res) {
   }
 }
 
-// Define the POST route for signup
+
+async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Compare passwords (using bcrypt or similar)
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Send successful login response
+    res.status(200).json({ message: 'Login successful', userId: user._id});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+}
+
+async function getUserById(userId) {
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error; // Rethrow the error for handling in the calling function
+  }
+}
+
+// Defining user routes
 router.post('/signup', signup);
+router.post('/login', login);
+router.get('/users/:userId', async (req, res) => {
+  try {
+    const user = await getUserById(req.params.userId);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(error.message === 'User not found' ? 404 : 500).json({ error: error.message });
+  }
+});
+router.put('/users/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const updatedUserData = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedUserData, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error updating user' });
+  }
+});
+
+
 
 export default router; // Update export for ES modules

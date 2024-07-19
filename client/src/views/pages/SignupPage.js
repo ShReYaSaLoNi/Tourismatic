@@ -14,17 +14,17 @@ function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-
-  document.documentElement.classList.remove("nav-open");
-  React.useEffect(() => {
-    document.body.classList.add("signup-page");
-    return function cleanup() {
-      document.body.classList.remove("signup-page");
-    };
-  }, []);
+  // document.documentElement.classList.remove("nav-open");
+  // React.useEffect(() => {
+  //   document.body.classList.add("signup-page");
+  //   return function cleanup() {
+  //     document.body.classList.remove("signup-page");
+  //   };
+  // }, []);
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    console.log("handleSubmit called!");
 
     // Add validation if needed (check for empty fields, password match, etc.)
     if (!email || !password || !confirmPassword || password !== confirmPassword) {
@@ -34,18 +34,21 @@ function SignupPage() {
 
     try {
       // Make a POST request to the backend API with user data
+      
       const response = await axios.post('http://localhost:5000/api/signup', {
         email,
         password,
+        confirmPassword
       });
-
+      console.log(response.data);
       // Handle successful signup response
-      if (response.data.success) {
+      if (response.status === 201) {
         console.log("Signup successful!");
       // Redirect to the profile page
         navigate('/profile-page');
       } else {
-        console.error("Signup failed:", response.data.error);
+        console.log(response.status);
+        console.error("Signup failed:", response.error);
         // Handle signup failure (e.g., email already exists)
       }
     } catch (error) {
@@ -73,31 +76,34 @@ function SignupPage() {
                   {/* Social buttons (unchanged) */}
                 </div>
                 <Form className="register-form" onSubmit={handleSignup}>
-                  <label>Email</label>
+                  <label for="email">Email</label>
                   <Input
+                    id="email"
                     name="email"
                     placeholder="Email"
-                    type="text"
+                    type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)} // Update state on change
                   />
-                  <label>Password</label>
+                  <label for="password">Password</label>
                   <Input
+                    id="password"
                     name="password"
                     placeholder="Password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)} // Update state on change
                   />
-                  <label>Confirm Password</label>
+                  <label for="confirmPassword">Confirm Password</label>
                   <Input
+                    id="confirmPassword"
                     name="confirmPassword"
                     placeholder="Confirm Password"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)} // Update state on change
                   />
-                  <Button block className="btn-round" color="danger" type="submit">
+                  <Button block className="btn-round" color="danger" type='submit'>
                     Signup
                   </Button>
                 </Form>

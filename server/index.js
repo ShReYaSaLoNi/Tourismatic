@@ -7,16 +7,22 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config(); // Load environment variables from .env file
 
+const corsOptions = {
+  origin: 'http://localhost:3000' // Replace with your frontend's origin
+};
+
 const app = express();
-app.use(cors());
+app.use(express.json());
+app.use(cors(corsOptions));
 const PORT = process.env.PORT || 5000;
+
 
 // Connect to MongoDB (make sure MongoDB is running)
 async function connectToDB() {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
-    //   useNewUrlParser: true,
-    //   useUnifiedTopology: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
     console.log('Connected to MongoDB!');
   } catch (error) {
@@ -27,11 +33,9 @@ async function connectToDB() {
 
 connectToDB();
 
-// Middleware
-app.use(express.json());
-
 // Routes
 app.use('/api', userRoutes);
+
 
 // Start the server
 app.listen(PORT, () => {
