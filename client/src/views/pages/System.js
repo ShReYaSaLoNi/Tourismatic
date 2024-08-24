@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from '@mui/material/TextField';
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
 // reactstrap components
 import {
@@ -24,7 +26,7 @@ import {
 import SystemNavbar from "components/Navbars/SystemNavbar.js";
 import DemoFooter from "components/Footers/DemoFooter.js";
 
-const API_KEY = "AIzaSyA98SGrf0JIBZvJVzyOQj8gSE2_0cNyvUM";
+const API_KEY = process.env.YOUTUBE_KEY;
 
 function System() {
 
