@@ -102,6 +102,17 @@ router.put('/users/:userId', async (req, res) => {
   }
 });
 
+//for influencers
+router.get('/influencers/:userId', async (req, res) => {
+  try {
+    const user = await getUserById(req.params.userId);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(error.message === 'User not found' ? 404 : 500).json({ error: error.message });
+  }
+});
+
 
 
 export default router; // Update export for ES modules

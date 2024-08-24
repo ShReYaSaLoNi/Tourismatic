@@ -1,6 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 import {Link} from "react-router-dom";
-
+import { useEffect } from "react";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 // reactstrap components
 import {
   Button,
@@ -23,7 +26,25 @@ import ArtistProfilePageHeader from "components/Headers/ArtistProfilePageHeader.
 import DemoFooter from "components/Footers/DemoFooter.js";
 
 function ArtistProfilePage() {
-  const [activeTab, setActiveTab] = React.useState("1");
+  const { userId } = useParams();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("1");
+  const [userData, setUserData] = useState(location.state?.userData || null);
+
+
+  useEffect(() => {
+    if (!userData) {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/influencers/${userId}`);
+          setUserData(response.data);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      };
+      fetchUserData();
+    }
+  }, [userId, userData]);
 
   const toggle = (tab) => {
     if (activeTab !== tab) {
@@ -31,13 +52,13 @@ function ArtistProfilePage() {
     }
   };
 
-  document.documentElement.classList.remove("nav-open");
-  React.useEffect(() => {
-    document.body.classList.add("landing-page");
-    return function cleanup() {
-      document.body.classList.remove("landing-page");
-    };
-  });
+  // document.documentElement.classList.remove("nav-open");
+  // React.useEffect(() => {
+  //   document.body.classList.add("landing-page");
+  //   return function cleanup() {
+  //     document.body.classList.remove("landing-page");
+  //   };
+  // });
   return (
     <>
       <ProfilePageNavbar />

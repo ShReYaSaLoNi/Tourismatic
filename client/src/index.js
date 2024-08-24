@@ -27,7 +27,7 @@ root.render(
       <Route path="/vedio-steps" element={<VedioSteps />} />
       <Route path="/sys-page" element={<System />} />
       <Route path="/users/:userId" element={<ProfilePage />} />
-      <Route path="/artistprofile-page" element={<ArtistProfilePage />} />
+      <Route path="/influencers/:userId" element={<ArtistProfilePage />} />
       <Route path="/login-page" element={<LoginPage />} />
       <Route path="/signup-page" element={<SignupPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />

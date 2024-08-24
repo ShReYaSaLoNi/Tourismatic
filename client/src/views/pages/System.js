@@ -24,10 +24,13 @@ import {
 import SystemNavbar from "components/Navbars/SystemNavbar.js";
 import DemoFooter from "components/Footers/DemoFooter.js";
 
+const API_KEY = "AIzaSyA98SGrf0JIBZvJVzyOQj8gSE2_0cNyvUM";
+
 function System() {
 
   const navigate = useNavigate(); // Initialize the useHistory hook
   const [userType, setUserType] = useState('user');
+  const [subscriberCount, setSubscriberCount] = useState('');
 
   const onUrlSelected = (e) => {
     setUserType(e.target.value);
@@ -51,12 +54,41 @@ function System() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+
+      if (userData.platformId) {
+        const subscriberResponse = await axios.get(`https://www.googleapis.com/youtube/v3/channels?part=statistics&forUsername=${userData.platformId}&key=${API_KEY}`);
+        if (subscriberResponse.data.items && subscriberResponse.data.items.length > 0) {
+          const subscriberCount = subscriberResponse.data.items[0].statistics.subscriberCount;
+          setSubscriberCount(subscriberCount);
+          console.log(subscriberCount);
+
+          if (parseInt(subscriberCount, 10) < 100000) {
+            alert("You cannot become an influencer as your subscriber count is less than 100,000.");
+            setUserType('user');
+            setUserData({ ...userData, userType: 'user', platform: '', platformId: '' });
+            return;
+          }   
+        } else {
+          alert("Username not found");
+          return;
+        }
+      }
+
+
       const userId = localStorage.getItem('userId'); // Assuming userId is stored
       const response = await axios.put(`http://localhost:5000/api/users/${userId}`, userData);
       // Handle successful update (e.g., show success message, redirect)
       const updatedUserData = await axios.get(`http://localhost:5000/api/users/${userId}`);
       setUserData(updatedUserData.data);
       console.log('User information updated successfully');
+      console.log(userData.userType);
+
+      if (userData.userType === 'influencer') {
+        navigate(`/influencers/${userId}`, { state: { userData: updatedUserData.data } });
+      } else {
+        navigate(`/users/${userId}`, { state: { userData: updatedUserData.data } });
+      }
+
     } catch (error) {
       console.error('Error updating user information:', error);
     }
@@ -113,11 +145,11 @@ function System() {
                   <h4>UserType :</h4>
                 </Col>
                 <Col sm="6" style={{ paddingTop: "2%" }}>
-                  <select className="form-control" onChange={onUrlSelected}>
-                    <option value="user">
+                  <select value={userType} className="form-control" onChange={onUrlSelected}>
+                    <option value="user" name="user">
                       User
                     </option>
-                    <option value="influencer">Influencer</option>
+                    <option value="influencer" name="influencer">Influencer</option>
                   </select>
                   {userType === 'influencer' && (
                     <>
@@ -134,6 +166,7 @@ function System() {
                         value={userData.platform}
                         variant="filled"
                         onChange={handleInputChange}
+                        name="platform"
                   />
                         </Col>
                       </Row>
@@ -150,6 +183,7 @@ function System() {
                         value={userData.platformId}
                         variant="filled"
                         onChange={handleInputChange}
+                        name="platformId"
                   />
                         </Col>
                       </Row>
@@ -209,6 +243,9 @@ function System() {
               </Row>
               <button type="submit">Save Changes</button>
               </form>
+              {subscriberCount && (
+                <p>{`Subscriber Count: ${subscriberCount}`}</p>
+              )}
             </Container>
           </div>
         </div>

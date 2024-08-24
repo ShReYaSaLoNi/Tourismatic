@@ -2,7 +2,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import { useLocation, useParams } from "react-router-dom";
 // reactstrap components
 import {
   Button,
@@ -25,24 +25,25 @@ import ProfilePageHeader from "components/Headers/ProfilePageHeader.js";
 import DemoFooter from "components/Footers/DemoFooter.js";
 
 function ProfilePage() {
-  const [activeTab, setActiveTab] = React.useState("1");
-  const [userData, setUserData] = useState(null);
+  const { userId } = useParams();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("1");
+  const [userData, setUserData] = useState(location.state?.userData || null);
 
   useEffect(() => {
-    // Fetch user data from backend (replace with your API call)
-    const fetchUserData = async () => {
-      try {
-        const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
-        const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
-        setUserData(response.data);
-        console.log(userData);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+    if (!userData) {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+          setUserData(response.data);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      };
 
-    fetchUserData();
-  }, []);
+      fetchUserData();
+    }
+  }, [userId, userData]);
 
   const toggle = (tab) => {
     if (activeTab !== tab) {
